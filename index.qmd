@@ -1,9 +1,21 @@
 # Preface {.unnumbered}
 
-This is a Quarto book.
+::: callout-note
+## About
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+This is my R programming notes.
+:::
 
-```{r}
-1 + 1
-```
+
+
+::: callout-caution
+**This is just a notes!** Contents in this book are subject to change and may not be accurate.
+:::
+
+## Main References
+
+Most of the material in this note came from:
+
+-   [Advanced R Book](https://adv-r.hadley.nz/index.html)
+
+-   [R Manuals](https://rstudio.github.io/r-manuals/)

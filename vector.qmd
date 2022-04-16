@@ -1,0 +1,525 @@
+# Vector {#vectors-chap}
+
+```{r setup, include=FALSE}
+here::i_am("vector.qmd")
+library(here)
+source(here("_common.R"))
+```
+
+## Overview
+
+```{r fig-vector, echo=FALSE, out.width='80%'}
+#| fig-cap: Type of vectors
+knitr::include_graphics("diagrams/vector.drawio.svg")
+```
+
+## Atomic Vectors
+
+-   logical
+-   numeric: integer, double
+-   character
+
+### Scalar
+
+```{r vec-atom}
+lgl_var <- c(TRUE, FALSE)
+int_var <- c(1L, 6L, 10L)
+dbl_var <- c(1, 2.5, 4.5)
+chr_var <- c("these are", "some strings")
+```
+
+```{r vec-atom-type}
+typeof(lgl_var)
+typeof(int_var)
+typeof(dbl_var)
+typeof(chr_var)
+```
+
+### Longer Vector
+
+`c()` will flattens
+
+```{r}
+c(c(1, 2), c(3, 4))
+```
+
+### Missing Value
+
+`NA` will propagate except
+
+```{r}
+NA ^ 0
+
+NA | TRUE
+
+NA & FALSE
+```
+
+**Checking `NA`**
+
+Don't use this to check `NA`
+
+```{r}
+x <- c(NA, 5)
+x == NA
+```
+
+Use this to check `NA`
+
+```{r}
+is.na(x)
+```
+
+Types of `NA`
+
+```{r}
+typeof(NA_integer_)
+typeof(NA_real_)
+typeof(NA_character_)
+```
+
+This distinction is usually unimportant because NA will be automatically coerced to the correct type when needed.
+
+### Testing
+
+Avoid [`is.vector()`](https://rdrr.io/r/base/vector.html), [`is.atomic()`](https://rdrr.io/r/base/is.recursive.html), and [`is.numeric()`](https://rdrr.io/r/base/numeric.html): they don't test if you have a vector, atomic vector, or numeric vector; you'll need to carefully read the documentation to figure out what they actually do.
+
+Use this.
+
+```{r}
+is.logical(T)
+is.integer(1L)
+is.double(2)
+is.character("Hi")
+```
+
+### Coercion
+
+Combining different types of atomic vector they will be coerced in this order
+
+::: {.callout-note icon="false"}
+#### Coercion
+
+logical → integer → double → character
+:::
+
+```{r}
+str(c(F, 1))
+str(c(1, "a"))
+```
+
+Coerce Logical to Numeric can be useful
+
+```{r}
+x <- c(FALSE, FALSE, TRUE)
+as.numeric(x)
+
+# Total number of TRUEs
+sum(x)
+
+# Proportion that are TRUE
+mean(x)
+```
+
+Deliberate coercion with warning message
+
+```{r}
+as.integer(c("1", "1.5", "a"))
+```
+
+## Attributes
+
+### Set and Get Attributes
+
+Set & Get specific attributes: `attr()`
+
+Set all attributes: `structure()`
+
+Get all attributes: `attributes()`
+
+```{r}
+a <- 1:3
+attr(a, "x") <- "abcdef"
+attr(a, "x")
+```
+
+```{r}
+attr(a, "y") <- 4:6
+str(attributes(a))
+```
+
+```{r}
+# Or equivalently
+a <- structure(
+  1:3, 
+  x = "abcdef",
+  y = 4:6
+)
+str(attributes(a))
+```
+
+Attributes should generally be thought of as **ephemeral**.
+
+```{r}
+attributes(a[1])
+attributes(sum(a))
+```
+
+There are only two attributes that are routinely preserved:
+
+-   **names**
+
+-   **dim**
+
+Create S3 class to preserve other attributes.
+
+### Names
+
+You can name a vector in three ways:
+
+```{r}
+# When creating it: 
+x <- c(a = 1, b = 2, c = 3)
+
+# By assigning a character vector to names()
+x <- 1:3
+names(x) <- c("a", "b", "c")
+
+# Inline, with setNames():
+x <- setNames(1:3, c("a", "b", "c"))
+```
+
+Remove names from a vector by using `x <- unname(x)` or `names(x) <- NULL`.
+
+```{r}
+y <- c(a = 1, 2)
+names(y)
+
+y <- unname(y)
+names(y)
+```
+
+**missing names** may be either "" or `NA_character_`. If all names are missing, names() will return NULL.
+
+### Dimensions
+
+Adding a `dim` attribute to a vector allows it to behave like a 2-dimensional matrix or a multi-dimensional array.
+
+**`matrix()`**
+
+```{r}
+# Two scalar arguments specify row and column sizes
+x <- matrix(1:6, nrow = 2, ncol = 3)
+x
+```
+
+**`array()`**
+
+```{r}
+# One vector argument to describe all dimensions
+y <- array(1:12, c(2, 3, 2))
+y
+```
+
+**`dim()`**
+
+```{r}
+# You can also modify an object in place by setting dim()
+z <- 1:6
+dim(z) <- c(3, 2)
+z
+```
+
+Many of the functions for working with vectors have generalisations for matrices and arrays:
+
+| Vector            | Matrix                     | Array            |
+|-------------------|----------------------------|------------------|
+| `names()`         | `rownames()`, `colnames()` | `dimnames()`     |
+| `length()`        | `nrow()`, `ncol()`         | `dim()`          |
+| `c()`             | `rbind()`, `cbind()`       | `abind::abind()` |
+| ---               | `t()`                      | `aperm()`        |
+| `is.null(dim(x))` | `is.matrix()`              | `is.array()`     |
+
+1-dimension, but not the same
+
+```{r}
+str(1:3)                   # 1d vector
+str(matrix(1:3, ncol = 1)) # column vector
+str(matrix(1:3, nrow = 1)) # row vector
+str(array(1:3, 3))         # "array" vector
+```
+
+## S3 Atomic Vectors
+
+### Factors
+
+Factors are built on top of an **integer vector**, can contain only predefined values.
+
+Has two attributes
+
+-   **class**: "factor"
+-   **levels**: defines the set of allowed values.
+
+```{r}
+x <- factor(c("a", "b", "b", "a"))
+x
+typeof(x)
+attributes(x)
+```
+
+When you tabulate a factor you'll get counts of all categories, even unobserved ones:
+
+```{r}
+# Character
+sex_char <- c("m", "m", "m")
+table(sex_char)
+# Factor
+sex_factor <- factor(sex_char, levels = c("m", "f"))
+table(sex_factor)
+```
+
+### Ordered factors
+
+They behave like regular factors, but the order of the levels is meaningful (leveraged by some modelling and visualisation functions)
+
+```{r}
+grade <- ordered(c("b", "b", "a", "c"), levels = c("c", "b", "a"))
+grade
+```
+
+::: callout-note
+#### Factor as String
+
+Best to explicitly convert factors to character vectors if you need string-like behaviour.
+:::
+
+### Date
+
+Date vectors are built on top of double vectors. They have class "Date" and no other attributes:
+
+```{r}
+today <- Sys.Date()
+
+typeof(today)
+attributes(today)
+```
+
+The value of the double represents the number of **days** since 1970-01-01.
+
+```{r}
+date <- as.Date("1970-02-01")
+unclass(date)
+```
+
+### Date-times
+
+value represents the number of **seconds** since 1970-01-01.
+
+```{r}
+now_ct <- as.POSIXct("2018-08-01 22:00", tz = "UTC")
+now_ct
+
+typeof(now_ct)
+attributes(now_ct)
+unclass(now_ct)
+```
+
+`tzone` attribute controls only how the date-time is formatted.
+
+```{r}
+Sys.timezone() # My time zone
+```
+
+```{r}
+structure(now_ct, tzone = "America/New_York")
+structure(now_ct, tzone = "Asia/Bangkok")
+```
+
+### Difftimes
+
+Difftimes are built on top of doubles, and have a `units` attribute that determines how the integer should be interpreted
+
+```{r}
+one_week_1 <- as.difftime(1, units = "weeks")
+one_week_1
+
+typeof(one_week_1)
+attributes(one_week_1)
+```
+
+## Lists
+
+Lists are a step up in complexity from atomic vectors: each element can be any type, not just vectors.
+
+### Create List
+
+```{r}
+l1 <- list(
+  1:3, 
+  "a", 
+  c(TRUE, FALSE, TRUE), 
+  c(2.3, 5.9)
+)
+
+typeof(l1)
+str(l1)
+```
+
+Elements of a list are references, the total size of a list might be smaller than you might expect.
+
+```{r}
+lobstr::obj_size(mtcars)
+
+l2 <- list(mtcars, mtcars, mtcars, mtcars)
+lobstr::obj_size(l2)
+```
+
+`c()` will coerce the vectors to lists before combining them into list
+
+```{r}
+l5 <- c(
+  list(1, 2), 
+  c(3, 4)
+  )
+
+str(l5)
+```
+
+### As List
+
+```{r}
+list(1:2)
+as.list(1:2)
+```
+
+### List Matrix
+
+With lists, the dimension attribute can be used to create list-matrices or list-arrays:
+
+```{r}
+l <- list(1:3, "a", TRUE, 1.0)
+dim(l) <- c(2, 2)
+l
+```
+
+## Data Frame
+
+### `data.frame`
+
+A data frame is a named list of vectors with the same length.
+
+Attributes
+
+-   `names`
+-   `row.names`
+
+```{r}
+df1 <- data.frame(x = 1:3, y = letters[1:3])
+typeof(df1)
+attributes(df1)
+```
+
+-   A data frame has [`rownames()`](https://tibble.tidyverse.org/reference/rownames.html) and [`colnames()`](https://rdrr.io/r/base/colnames.html). The [`names()`](https://rdrr.io/r/base/names.html) of a data frame are the column names.
+
+-   A data frame has [`nrow()`](https://rdrr.io/r/base/nrow.html) rows and [`ncol()`](https://rdrr.io/r/base/nrow.html) columns. The [`length()`](https://rdrr.io/r/base/length.html) of a data frame gives the number of columns.
+
+### `tibble`
+
+> Tibbles are lazy and surly: they do less and complain more.
+
+```{r}
+library(tibble)
+
+df2 <- tibble(x = 1:3, y = letters[1:3])
+typeof(df2)
+attributes(df2)
+```
+
+### Tibble vs Data Frame
+
+-   Tibbles never coerce their input (but recent version of R data frame also not convert string to factor)
+-   Tibbles do not transform non-syntactic names
+-   Tibbles will only recycle vectors of length one.
+-   Tibbles allows you to refer to variables created during construction:
+
+```{r}
+df2 <- tibble(
+  x = 1:3, 
+  y = c("a", "b", "c")
+)
+
+str(df2)
+```
+
+```{r}
+names(data.frame(`1` = 1))
+names(tibble(`1` = 1))
+```
+
+```{r}
+# Useful feature
+tibble(
+  x = 1:3,
+  y = x * 2
+)
+```
+
+### Rowname
+
+::: callout-caution
+#### Warning
+
+Row names are undesirable
+:::
+
+Convert rowname to column by
+
+-   [`rownames_to_column()`](https://tibble.tidyverse.org/reference/rownames.html)
+-   [`as_tibble()`](https://tibble.tidyverse.org/reference/as_tibble.html) with `rownames` argument
+
+```{r}
+df3 <- data.frame(
+  age = c(35, 27, 18),
+  hair = c("blond", "brown", "black"),
+  row.names = c("Bob", "Susan", "Sam")
+)
+
+as_tibble(df3, rownames = "name")
+```
+
+### Subsetting Caveat
+
+`data.frame` allowed partial matching when subsetting with `$`. It can be a source of bug.
+
+```{r}
+df3$a
+# If not found
+df3$x
+```
+
+If you want a single column, recommend using `df[["col"]]`
+
+### List column in Tibble
+
+```{r}
+tibble(
+  x = 1:3, 
+  y = list(1:2, 1:3, 1:4)
+)
+```
+
+## NULL
+
+```{r}
+typeof(NULL)
+length(NULL)
+
+x <- NULL
+attr(x, "y") <- 1
+```
+
+two common uses of `NULL`:
+
+-   To represent an empty vector (a vector of length zero) of arbitrary type.
+
+-   To represent an absent vector. For example, `NULL` is often used as a default function argument, when the argument is optional but the default value requires some computation. (Contrast this with `NA` which is used to indicate that an *element* of a vector is absent.)

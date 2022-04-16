@@ -2,25 +2,27 @@ project:
   type: book
 
 book:
-  title: "Book Template"
-  author: "Jane Doe"
+  title: "R Programming Notes"
+  author: "Kittipos Sirivongrungson"
   date: "4/16/2022" # `today` for current date when render
-  #site-url: your-site-url
-  #repo-url: your-repo-url
+  site-url: https://r-programming-lightbridge.netlify.app
+  repo-url: https://github.com/Lightbridge-KS/r-programming-notes
   chapters:
     - index.qmd
-    - intro.qmd
-    - summary.qmd
+    - vector.qmd
     - references.qmd
 
 bibliography: references.bib
 
 format:
   html:
-    theme: cosmo
-  pdf:
-    documentclass: scrreprt
+    theme:
+      light: cosmo
+      dark: superhero
+    number-sections: false
+  #pdf:
+    #documentclass: scrreprt
 
 
 # freeze computational output ? (see: https://quarto.org/docs/projects/code-execution.html#freeze)
-#freeze: auto
+freeze: auto

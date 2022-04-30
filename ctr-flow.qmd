@@ -10,12 +10,10 @@ source(here("_common.R"))
 
 Syntax:
 
-```r
+``` r
 if (condition) true_action
 if (condition) true_action else false_action
 ```
-
-
 
 ### Return value of `if`
 
@@ -39,7 +37,6 @@ Note that, however:
 is.logical(NA)
 ```
 
-
 **Use case of `NULL` from `if (FALSE)`**
 
 `c()` and `paste()` drop `NULL` inputs, this allows for a compact expression of certain idioms:
@@ -55,7 +52,6 @@ greet <- function(name, birthday = FALSE) {
 greet("A")
 greet("A", birthday = TRUE)
 ```
-
 
 ## Vectorized IF
 
@@ -75,15 +71,13 @@ library(emo)
 x <- 1:10
 ```
 
-
 If `x` can be divided by:
 
--    3 return `r emo::ji("cheese")`
+-   3 return `r ji("cheese")`
 
--    5 return `r emo::ji("car")`
+-   5 return `r ji("car")`
 
--    otherwise, return `x`
-
+-   otherwise, return `x`
 
 ### `if` with Loop
 
@@ -147,4 +141,50 @@ f_subset(x)
 ```
 
 
+### `case_when`
+
+```{r f_case_when}
+f_case_when <- function(x) {
+  dplyr::case_when(
+    x %% 3 == 0 ~ as.character(ji("cheese")),
+    x %% 5 == 0 ~ as.character(ji("car")),
+    TRUE ~ as.character(x)
+  )
+}
+
+f_case_when(x)
+```
+
+
+### Benchmark
+
+Let's measure a performance of 3 approachs of control flow over vector.
+
+```{r mark_ctrflow}
+mark_ctrflow <- function(x) {
+  bench::mark(
+    loopif = f_loopif(x), # Loop with if
+    ifelse = f_ifelse(x), # ifelse
+    subset = f_subset(x),  # subset
+    case_when = f_case_when(x) # dplyr::case_when()
+  )
+}
+```
+
+```{r}
+set.seed(123)
+
+results <- mark_ctrflow(1:10)
+results
+```
+
+```{r}
+ggplot2::autoplot(results)
+```
+
+::: callout-tip
+### Conclusion
+
+It seems like using **vector subsetting** is the fastest, followed by **`ifelse`**, and then **`dplyr::case_when()`** or **looping over `if`** approach is about the same.
+:::
 

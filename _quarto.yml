@@ -10,6 +10,7 @@ book:
   chapters:
     - index.qmd
     - vector.qmd
+    - ctr-flow.qmd
     - references.qmd
 
 bibliography: references.bib

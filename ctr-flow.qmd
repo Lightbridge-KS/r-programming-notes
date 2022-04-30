@@ -1,0 +1,150 @@
+# Control Flow {#ctr-flow-chap}
+
+```{r setup, include=FALSE}
+here::i_am("ctr-flow.qmd")
+library(here)
+source(here("_common.R"))
+```
+
+## IF
+
+Syntax:
+
+```r
+if (condition) true_action
+if (condition) true_action else false_action
+```
+
+
+
+### Return value of `if`
+
+```{r}
+x <- if (TRUE) 3
+x
+```
+
+```{r}
+y <- if (FALSE) 3
+y
+```
+
+```{r}
+if(NA) 3
+```
+
+Note that, however:
+
+```{r}
+is.logical(NA)
+```
+
+
+**Use case of `NULL` from `if (FALSE)`**
+
+`c()` and `paste()` drop `NULL` inputs, this allows for a compact expression of certain idioms:
+
+```{r}
+greet <- function(name, birthday = FALSE) {
+  paste0(
+    "Hi ", name,
+    if (birthday) " and HAPPY BIRTHDAY"
+  )
+}
+
+greet("A")
+greet("A", birthday = TRUE)
+```
+
+
+## Vectorized IF
+
+```{r}
+x <- 1:10
+
+ifelse(x %% 5 == 0, "XXX", as.character(x))
+```
+
+## Test Vectorized IF
+
+```{r setup-emo, message=FALSE}
+library(emo)
+```
+
+```{r}
+x <- 1:10
+```
+
+
+If `x` can be divided by:
+
+-    3 return `r emo::ji("cheese")`
+
+-    5 return `r emo::ji("car")`
+
+-    otherwise, return `x`
+
+
+### `if` with Loop
+
+```{r f_loopif}
+f_loopif <- function(x) {
+  
+  out <- character(length(x))
+  
+  for (i in seq_along(x)) {
+    
+    out[i] <- if (x[i] %% 3 == 0) {
+      
+      ji("cheese")
+      
+    } else if (x[i] %% 5 == 0) {
+      
+      ji("car")
+      
+    } else {
+      x[i]
+    }
+    
+  }
+
+  out
+  
+}
+
+f_loopif(x)
+```
+
+### `ifelse` approach
+
+```{r f_ifelse}
+f_ifelse <- function(x) {
+  
+  ifelse(x %% 3 == 0, ji("cheese"),
+    ifelse(x %% 5 == 0, ji("car"), x)
+  )
+  
+}
+
+f_ifelse(x)
+```
+
+### Logical Subsetting
+
+```{r f_subset}
+f_subset <- function(x) {
+  
+  out <- character(length(x))
+  
+  # Assign value to location where `x` is: 
+  out[x %% 3 == 0] <- ji("cheese") # divided by 3
+  out[x %% 5 == 0] <- ji("car") # divided by 5
+  out[out == ""] <- x[out == ""] # and the rest
+  out
+}
+
+f_subset(x)
+```
+
+
+

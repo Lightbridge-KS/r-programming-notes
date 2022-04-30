@@ -7,11 +7,6 @@ This is my R programming notes.
 :::
 
 
-
-::: callout-caution
-**This is just a notes!** Contents in this book are subject to change and may not be accurate.
-:::
-
 ## Main References
 
 Most of the material in this note came from:

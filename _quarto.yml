@@ -11,6 +11,7 @@ book:
     - index.qmd
     - vector.qmd
     - ctr-flow.qmd
+    - function.qmd
     - references.qmd
 
 bibliography: references.bib
@@ -21,6 +22,7 @@ format:
       light: cosmo
       dark: superhero
     number-sections: false
+    code-link: true
   #pdf:
     #documentclass: scrreprt
 

@@ -1,0 +1,139 @@
+---
+title: "Function"
+---
+
+```{r setup, include=FALSE}
+here::i_am("function.qmd")
+library(here)
+source(here("_common.R"))
+```
+
+## Fundamentals
+
+### Function Components
+
+R functions are objects in their own right or “first-class functions”.
+
+```{r}
+f02 <- function(x, y) {
+  # A comment
+  x + y
+}
+
+typeof(f02)
+class(f02)
+sloop::ftype(f02)
+sloop::otype(f02)
+```
+
+3 Function components
+
+```{r}
+formals(f02)
+body(f02)
+environment(f02)
+```
+
+
+`srcref` attribute is used for printing the source code.
+
+```{r}
+attributes(f02)
+```
+
+
+```{r}
+print.function(f02)
+```
+
+### First-class Function
+
+**anonymous function** (no name binding is necessary)
+
+```{r eval=FALSE}
+lapply(mtcars, function(x) length(unique(x)))
+Filter(function(x) !is.numeric(x), mtcars)
+integrate(function(x) sin(x) ^ 2, 0, pi)
+```
+
+**List of functions**
+
+```{r}
+funs <- list(
+  half = function(x) x / 2,
+  double = function(x) x * 2
+)
+
+funs$double(10)
+```
+
+### `do.call()`
+
+```{r}
+args <- list(1:10, na.rm = TRUE)
+do.call(mean, args)
+```
+
+### Exercise
+
+1. `match.fun()` finds the function
+
+```{r}
+match.fun("mean")
+```
+
+2. Calling anonymous function
+
+```{r}
+class(function(x) x + 1)
+```
+
+```{r}
+(function(x) x + 1)(2)
+```
+
+3. List all function in base
+
+```{r}
+objs <- mget(ls("package:base", all = TRUE), inherits = TRUE)
+funs <- Filter(is.function, objs)
+```
+
+Find functions that has most arguments
+
+```{r setup-pkg, message=FALSE, warning=FALSE}
+library(purrr)
+library(dplyr)
+library(tibble)
+```
+
+Helper to counts number of arguments
+
+```{r}
+get_num_args <- function(f){
+  
+  args <- formals(f)
+  if(is.null(args)) return(NA_integer_) # for primitive function
+  length(args)
+  
+}
+
+get_num_args(f02)
+get_num_args(sum)
+```
+
+
+```{r}
+basefuns_tbl <- map_dbl(funs, get_num_args) %>% 
+  enframe("base_fun", "num_args")
+```
+
+Base functions that has most arguments
+
+```{r}
+basefuns_tbl %>% 
+  arrange(desc(num_args)) %>% 
+  head()
+```
+
+

@@ -1,0 +1,4 @@
+- source: project
+  netlify:
+    - id: 7048c61e-c11f-4ca8-b297-bbcce599fa71
+      url: 'https://r-programming-lightbridge.netlify.app'

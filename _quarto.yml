@@ -12,6 +12,7 @@ book:
     - vector.qmd
     - ctr-flow.qmd
     - function.qmd
+    - rlang.qmd
     - references.qmd
 
 bibliography: references.bib

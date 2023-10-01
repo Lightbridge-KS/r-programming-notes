@@ -1,0 +1,14 @@
+{
+  "hash": "38e19d560fcad2a8a02368ad5d500e81",
+  "result": {
+    "markdown": "---\ntitle: \"rlang tricks\"\n---\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(rlang)\n```\n:::\n\n\n\n## Decompose Fun and List of Args\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nf <- function(fun = stats::mad, args = list()) {\n  \n   call <- rlang::call2(fun, c(1:10, NA), !!!args)\n   eval(call)\n}\n\nf()\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n[1] NA\n```\n:::\n\n```{.r .cell-code}\nf(args = list(na.rm = TRUE))\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n[1] 3.7065\n```\n:::\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ng <- function(x, fun = \"median\", pkg = \"stats\", args = list()) {\n  \n  call <- rlang::call2(fun, x, !!!args, .ns = pkg)\n  eval(call)\n}\n  \ng(c(rep(1, 5), rep(2, 3)))\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n[1] 1\n```\n:::\n\n```{.r .cell-code}\ng(c(rep(1, 5), rep(2, 3), NA), \"mean\", \"base\", args = list(na.rm = T))\n```\n\n::: {.cell-output .cell-output-stdout}\n```\n[1] 1.375\n```\n:::\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

@@ -1,0 +1,42 @@
+---
+title: "rlang tricks"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = rprojroot::find_rstudio_root_file())
+here::i_am("rlang.qmd")
+library(here)
+```
+
+```{r}
+library(rlang)
+```
+
+
+## Decompose Fun and List of Args
+
+
+```{r}
+f <- function(fun = stats::mad, args = list()) {
+  
+   call <- rlang::call2(fun, c(1:10, NA), !!!args)
+   eval(call)
+}
+
+f()
+f(args = list(na.rm = TRUE))
+```
+
+
+```{r}
+g <- function(x, fun = "median", pkg = "stats", args = list()) {
+  
+  call <- rlang::call2(fun, x, !!!args, .ns = pkg)
+  eval(call)
+}
+  
+g(c(rep(1, 5), rep(2, 3)))
+g(c(rep(1, 5), rep(2, 3), NA), "mean", "base", args = list(na.rm = T))
+```
+
+

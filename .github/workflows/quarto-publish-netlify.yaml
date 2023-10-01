@@ -8,14 +8,14 @@ on:
 
 
 
-name: Render and Publish
+name: Quarto Publish
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2 
+        uses: actions/checkout@v4
         
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
@@ -26,16 +26,16 @@ jobs:
           # version: 0.9.600
       
       # add software dependencies here
-      - name: Set up R Environment
-        uses: r-lib/actions/setup-renv@v2 # Installs packages from renv lockfile
-        with:
-          cache-version: 1
+      # - name: Set up R Environment
+      #   uses: r-lib/actions/setup-renv@v2 # Installs packages from renv lockfile
+      #   with:
+      #     cache-version: 1
           
       # For code linking
-      - name: Install {downlit} and {xml2}
-        run: |
-          renv::install(c("downlit", "xml2"))
-        shell: Rscript {0}
+      # - name: Install {downlit} and {xml2}
+      #   run: |
+      #     renv::install(c("downlit", "xml2"))
+      #   shell: Rscript {0}
 
       # To publish to Netlify, RStudio Connect, or GitHub Pages, uncomment
       # the appropriate block below
